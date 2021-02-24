@@ -70,8 +70,8 @@ export class NotificationService {
         : null,
       createdAt: this.getDateFormated(ticket.createdAt.toString(), 
         user.timezone, 'DD-MM-YYYY HH:mm:ss'),
-      updatedAt: this.getDateFormated(ticket.updatedAt.toString(), 
-      user.timezone, 'DD-MM-YYYY HH:mm:ss')
+      updatedAt: ticket.updatedAt ? this.getDateFormated(ticket.updatedAt.toString(), 
+      user.timezone, 'DD-MM-YYYY HH:mm:ss') : null
     };
   }
 
@@ -80,8 +80,8 @@ export class NotificationService {
       ...order,
       createdAt: this.getDateFormated(order.createdAt.toString(), 
         user.timezone, 'DD-MM-YYYY HH:mm:ss'),
-      updatedAt: this.getDateFormated(order.updatedAt.toString(), 
-      user.timezone, 'DD-MM-YYYY HH:mm:ss')
+      updatedAt: order.updatedAt ? this.getDateFormated(order.updatedAt.toString(), 
+      user.timezone, 'DD-MM-YYYY HH:mm:ss') : null
     };
   }
 
@@ -94,8 +94,8 @@ export class NotificationService {
       user.timezone, 'DD-MM-YYYY HH:mm:ss'),
       createdAt: this.getDateFormated(ticket.createdAt.toString(), 
         user.timezone, 'DD-MM-YYYY HH:mm:ss'),
-      updatedAt: this.getDateFormated(ticket.updatedAt.toString(), 
-      user.timezone, 'DD-MM-YYYY HH:mm:ss')
+      updatedAt: ticket.updatedAt ? this.getDateFormated(ticket.updatedAt.toString(), 
+      user.timezone, 'DD-MM-YYYY HH:mm:ss') : null
     };
   }
 
@@ -104,8 +104,9 @@ export class NotificationService {
       ...payment,
       createdAt: this.getDateFormated(payment.createdAt.toString(), 
         user.timezone, 'DD-MM-YYYY HH:mm:ss'),
-      completedAt: this.getDateFormated(payment.completedAt.toString(), 
-      user.timezone, 'DD-MM-YYYY HH:mm:ss')
+      completedAt: payment.completedAt 
+        ? this.getDateFormated(payment.completedAt.toString(), 
+      user.timezone, 'DD-MM-YYYY HH:mm:ss') : null
     };
   }
 
@@ -116,8 +117,8 @@ export class NotificationService {
       hourString: this.getHour(event, user),
       createdAt: this.getDateFormated(event.createdAt.toString(), 
         user.timezone, 'DD-MM-YYYY HH:mm:ss'),
-      updatedAt: this.getDateFormated(event.updatedAt.toString(), 
-      user.timezone, 'DD-MM-YYYY HH:mm:ss')
+      updatedAt: event.updatedAt ?this.getDateFormated(event.updatedAt.toString(), 
+      user.timezone, 'DD-MM-YYYY HH:mm:ss') : null
     };
   }
  
