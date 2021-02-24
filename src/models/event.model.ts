@@ -19,8 +19,8 @@ export interface Event {
   readonly state: string;
   readonly country: string;
   readonly countryCode: string;
-  readonly startDate: Date;
-  readonly endDate: Date;
+  readonly startDate: Date | string;
+  readonly endDate: Date | string;
   readonly timezone: string;
   readonly type: EventType;
   readonly privacy: EventPrivacy;

@@ -63,7 +63,6 @@ export class NotificationService {
   }
 
   public getTicket(ticket: Ticket, user: User): Ticket {
-    console.log(ticket);
     return {
       ...ticket,
       eventTicket: ticket.eventTicket 
@@ -92,11 +91,7 @@ export class NotificationService {
       startDate: this.getDateFormated(ticket.startDate.toString(), 
         user.timezone, 'DD-MM-YYYY HH:mm:ss'),
       endDate: this.getDateFormated(ticket.endDate.toString(), 
-      user.timezone, 'DD-MM-YYYY HH:mm:ss'),
-      createdAt: this.getDateFormated(ticket.createdAt.toString(), 
-        user.timezone, 'DD-MM-YYYY HH:mm:ss'),
-      updatedAt: ticket.updatedAt ? this.getDateFormated(ticket.updatedAt.toString(), 
-      user.timezone, 'DD-MM-YYYY HH:mm:ss') : null
+      user.timezone, 'DD-MM-YYYY HH:mm:ss')
     };
   }
 
@@ -116,9 +111,9 @@ export class NotificationService {
       ...event,
       dateString: this.getEventDate(event, user),
       hourString: this.getHour(event, user),
-      createdAt: this.getDateFormated(event.createdAt.toString(), 
+      startDate: this.getDateFormated(event.startDate.toString(), 
         user.timezone, 'DD-MM-YYYY HH:mm:ss'),
-      updatedAt: event.updatedAt ?this.getDateFormated(event.updatedAt.toString(), 
+      endDate: event.endDate ? this.getDateFormated(event.endDate.toString(), 
       user.timezone, 'DD-MM-YYYY HH:mm:ss') : null
     };
   }
@@ -175,12 +170,16 @@ export class NotificationService {
 
   public async sendEmailNotification(email: string, country: string, tickets: Ticket[], 
     order: Order, user: User, event: Event, payment: Payment): Promise<boolean> {
-      if (tickets.length > 1) {
-        return await this.sendMultiplePaidTicket(email, country, tickets, order, 
-          user, event, payment);
-      } else {
-        return await this.sendSinglePaidTicket(email, country, tickets[0], order, 
-          user, event, payment);
+      try {
+        if (tickets.length > 1) {
+          return await this.sendMultiplePaidTicket(email, country, tickets, order, 
+            user, event, payment);
+        } else {
+          return await this.sendSinglePaidTicket(email, country, tickets[0], order, 
+            user, event, payment);
+        }
+      } catch(e) {
+        console.log(`Cannot send email notification. MS Notification - Error: ${e.code}`)
       }
   }
 }

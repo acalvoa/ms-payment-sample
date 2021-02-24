@@ -29,17 +29,19 @@ export class TicketService {
     const tickets = [];
     for (const item of process.tickets) {
       const ticket = process.event.tickets.find(ticket => item.id === ticket.id);
-      const result = await this.createByOrder(ticket, process.event,
-        user, process.order, TicketOrigin.BOUGHT, 
-        this.isUniqueOrder(process.tickets) ? TicketStatus.VALIDATED : TicketStatus.REGISTERED,
-        process.tickets.length === 1);
-      result.eventTicket = ticket;
-      result.token = jwt.sign({ 
-        event: process.event.id,
-        eventTicket: ticket.id,
-        ticket: result.id
-      }, process.order.tx);
-      tickets.push(result); 
+      for (let i = 0; i < item.amount; i++) {
+        const result = await this.createByOrder(ticket, process.event,
+          user, process.order, TicketOrigin.BOUGHT, 
+          this.isUniqueOrder(process.tickets) ? TicketStatus.VALIDATED : TicketStatus.REGISTERED,
+          this.isUniqueOrder(process.tickets));
+        result.eventTicket = ticket;
+        result.token = jwt.sign({ 
+          event: process.event.id,
+          eventTicket: ticket.id,
+          ticket: result.id
+        }, process.order.tx);
+        tickets.push(result);
+      }
     }
     return tickets;
   }

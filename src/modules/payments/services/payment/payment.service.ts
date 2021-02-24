@@ -24,9 +24,7 @@ export class PaymentService {
 
   public async create(process: ProcessOrderDto): Promise<PaymentResponse> {
     const gateway = await this.getGateway(process.payment);
-    console.log(process);
     let payment = await this.createPayment(process, gateway);
-    console.log(payment);
     const payOrder = await this.txPayment(gateway, payment);
     payment.txp = payOrder.tx;
     payment = await this.updatePayment(payment);
@@ -49,7 +47,6 @@ export class PaymentService {
       payment.type = PaymentType.CREDIT;
       payment.status = PaymentStatus.CREATED;
 
-      console.log(payment);
       this.rest.post<Payment>(`${this.path}/payments`, payment)
       .subscribe(response => {
         resolve(response.data);
