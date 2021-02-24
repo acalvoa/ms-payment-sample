@@ -4,16 +4,16 @@ stages:
   - build
   - deploy
 
-base:
-  stage: prepare
-  image: docker:19.03.13
-  before_script:
-    - echo "$DOCKER_REGISTRY_PASS" | docker login registry.gitlab.com --username $DOCKER_REGISTRY_USER --password-stdin
-  services:
-    - docker:dind
-  script:
-    - docker build -f .docker/Dockerfile.base -t registry.gitlab.com/ecopass/backend/ms-payments:base .
-    - docker push registry.gitlab.com/ecopass/backend/ms-payments:base
+# base:
+#   stage: prepare
+#   image: docker:19.03.13
+#   before_script:
+#     - echo "$DOCKER_REGISTRY_PASS" | docker login registry.gitlab.com --username $DOCKER_REGISTRY_USER --password-stdin
+#   services:
+#     - docker:dind
+#   script:
+#     - docker build -f .docker/Dockerfile.base -t registry.gitlab.com/ecopass/backend/ms-payments:base .
+#     - docker push registry.gitlab.com/ecopass/backend/ms-payments:base
 
 # test:
 #   stage: test
