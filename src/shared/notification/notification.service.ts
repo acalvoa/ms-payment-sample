@@ -63,6 +63,7 @@ export class NotificationService {
   }
 
   public getTicket(ticket: Ticket, user: User): Ticket {
+    console.log(ticket);
     return {
       ...ticket,
       eventTicket: ticket.eventTicket 
