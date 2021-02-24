@@ -18,6 +18,7 @@ export interface Ticket {
   readonly origin: TicketOrigin;
   readonly status: TicketStatus;
   readonly reusable: boolean;
-  readonly createdAt: Date;
+  readonly createdAt: Date | string;
+  readonly updatedAt?: Date | string;
   token?: string;
 }

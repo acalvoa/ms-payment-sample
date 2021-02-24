@@ -18,6 +18,6 @@ export class Payment {
   public tax: number;
   public amount: number;
   public status: PaymentStatus;
-  public createAt: Date;
-  public completedAt: Date;
+  public createdAt: Date | string;
+  public completedAt: Date | string;
 }

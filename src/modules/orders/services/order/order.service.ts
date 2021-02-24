@@ -12,6 +12,8 @@ import { PaymentService } from 'src/modules/payments/services/payment/payment.se
 import { OrderStatus } from 'src/enums/order-status.enum';
 import { RequestQueryBuilder } from '@nestjsx/crud-request';
 import { ParserService } from 'src/shared/parser/parser.service';
+import { NotificationService } from 'src/shared/notification/notification.service';
+import { AuthService } from 'src/modules/users/services/user.service';
 
 @Injectable()
 export class OrderService {
@@ -23,8 +25,9 @@ export class OrderService {
     private parser: ParserService,
     private redis: RedisServerService,
     private paymentService: PaymentService,
-    private ticketService: TicketService
-    ) {
+    private ticketService: TicketService,
+    private notification: NotificationService,
+    private authService: AuthService) {
     this.platform = this.config.get('PLATFORM_DATA');
   }
 
@@ -33,20 +36,24 @@ export class OrderService {
     const payment = await this.paymentService.getPayment(id);
     try {
       const process = await this.getProcessFromMemory(payment.order);
+      const { email, dni, timezone } = process.userData;
+      const user = await this.authService.getUserOrCreate(email, dni, timezone);
       if (!process) {
         throw new NotFoundException('Process not found. Expire or deleted');
       }
       await this.confirmPayment(payment, query, body);
-      payment.status = PaymentStatus.CREATED;
+      payment.status = PaymentStatus.PAID;
       payment.completedAt = new Date();
       await this.paymentService.updatePayment(payment);
-      await this.ticketService.generateTickets(process);
-      await this.updateOrder(process.order.id, { status: OrderStatus.PAID });
+      const tickets = await this.ticketService.generateTickets(process, user);
+      const order = await this.updateOrder(process.order.id, { status: OrderStatus.PAID });
+      await this.notification.sendEmailNotification(process.userData.email, 
+        process.country, tickets, order, user, process.event, payment);
       return [payment, process];
     } catch (e) {
       payment.status = PaymentStatus.ERROR;
       await this.paymentService.updatePayment(payment);
-      await this.updateOrderByTxp(payment.txp, { status: OrderStatus.PAID });
+      await this.updateOrderByTxp(payment.txp, { status: OrderStatus.FAILED });
       console.error(e);
       return null;
     }

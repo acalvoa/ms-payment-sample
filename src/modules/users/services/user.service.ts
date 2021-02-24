@@ -5,7 +5,7 @@ import { User } from 'src/models/user.model';
 import { ClusterRestService } from 'src/modules/common/services/cluster-rest/cluster-rest.service';
 
 @Injectable()
-export class UserService {
+export class AuthService {
   private path: string;
 
   constructor(private configService: ConfigService,
@@ -13,18 +13,17 @@ export class UserService {
       this.path = this.configService.get('AUTHORIZATION_APP');
   }
 
-  public getUserOrCreate(email: string, dni: string, timezone: string = null): Observable<User>{
-    return new Observable<User>(observe => {
+  public getUserOrCreate(email: string, dni: string, timezone: string = null): Promise<User>{
+    return new Promise<User>((resolve, reject) => {
       this.rest.put<User>(`${this.path}/users`, {
         email,
         dni,
         timezone
       }).subscribe(response => {
-        observe.next(response.data);
-        observe.complete();
+        resolve(response.data);
       }, error => {
-        observe.error(error);
-        observe.complete();
+        console.error(error);
+        reject(error);
       });
     });
   }

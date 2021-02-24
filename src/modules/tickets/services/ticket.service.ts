@@ -4,13 +4,12 @@ import { TicketStatus } from "src/enums/ticket-status.enum";
 import { EventTicket } from "src/models/event-ticket.model";
 import { Order } from "src/models/order.model";
 import { Ticket } from "src/models/ticket.model";
-import { UserData } from "src/models/user-data.model";
 import { Event } from 'src/models/event.model';
 import { ConfigService } from "@nestjs/config";
-import { UserService } from "src/modules/users/services/user.service";
 import { CreateTicketDto } from "src/modules/users/dto/create-ticket.dto";
 import { ProcessOrderDto } from "src/modules/payments/dto/create-payment.dto";
 import * as jwt from 'jsonwebtoken';
+import { User } from "src/models/user.model";
 
 @Injectable()
 export class TicketService {
@@ -18,8 +17,7 @@ export class TicketService {
   private platform: string;
   
   constructor(private rest: HttpService,
-    private config: ConfigService,
-    private userService: UserService) {
+    private config: ConfigService) {
     this.platform = this.config.get('PLATFORM_DATA');
   }
 
@@ -27,13 +25,14 @@ export class TicketService {
     return tickets.length === 1 && tickets[0].amount === 1;
   }
 
-  public async generateTickets(process: ProcessOrderDto): Promise<Ticket[]> {
+  public async generateTickets(process: ProcessOrderDto, user: User): Promise<Ticket[]> {
     const tickets = [];
     for (const item of process.tickets) {
       const ticket = process.event.tickets.find(ticket => item.id === ticket.id);
       const result = await this.createByOrder(ticket, process.event,
-        process.userData, process.order, TicketOrigin.BOUGHT, 
-        this.isUniqueOrder(process.tickets) ? TicketStatus.VALIDATED : TicketStatus.REGISTERED);
+        user, process.order, TicketOrigin.BOUGHT, 
+        this.isUniqueOrder(process.tickets) ? TicketStatus.VALIDATED : TicketStatus.REGISTERED,
+        process.tickets.length === 1);
       result.eventTicket = ticket;
       result.token = jwt.sign({ 
         event: process.event.id,
@@ -45,26 +44,23 @@ export class TicketService {
     return tickets;
   }
 
-  public createByOrder(ticket: EventTicket, event: Event, user: UserData,
-    order: Order, origin: TicketOrigin, status: TicketStatus): Promise<Ticket>  {
+  public createByOrder(ticket: EventTicket, event: Event, user: User, order: Order, 
+    origin: TicketOrigin, status: TicketStatus, owner: boolean): Promise<Ticket>  {
     return new Promise<Ticket>((resolve, reject) => {
-      this.userService.getUserOrCreate(user.email, user.dni, user.timezone)
-      .subscribe(data => {
-        const target = new CreateTicketDto();
-        target.eventTicket = ticket.id;
-        target.event = event.id;
-        target.status = status;
-        target.order = order.id;
-        target.user = data.id;
-        target.holder = data.id;
-        target.origin = origin;
-        this.rest.post<Ticket>(`${this.platform}/tickets`, target)
-        .subscribe(response => {
-          resolve(response.data);
-        }, error => {
-          console.log(error);
-          reject(error);
-        });
+      const target = new CreateTicketDto();
+      target.eventTicket = ticket.id;
+      target.event = event.id;
+      target.status = status;
+      target.order = order.id;
+      target.user = owner ? user.id : null;
+      target.holder = user.id;
+      target.origin = origin;
+      this.rest.post<Ticket>(`${this.platform}/tickets`, target)
+      .subscribe(response => {
+        resolve(response.data);
+      }, error => {
+        console.log(error);
+        reject(error);
       });
     });
   }

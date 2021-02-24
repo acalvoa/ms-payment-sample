@@ -15,14 +15,14 @@ export interface EventTicket {
   readonly currency: Currency | string;
   readonly event?: Event | number;
   readonly subevent?: SubEvent | number;
-  readonly startDate: Date;
-  readonly endDate: Date;
+  readonly startDate: Date | string;
+  readonly endDate: Date | string;
   readonly timezone: string;
   readonly sellLimit: number;
   readonly commissionPayer: CommissionPayer;
   readonly status: EventTicketStatus;
   readonly type: EventTicketType;
   readonly visibility: Visibility;
-  readonly createdAt?: Date;
-  readonly updatedAt?: Date;
+  readonly createdAt?: Date | string;
+  readonly updatedAt?: Date | string;
 }

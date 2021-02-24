@@ -28,7 +28,9 @@ export interface Event {
   readonly status?: EventStatus;
   readonly corporate?: boolean;
   design?: EventDesign;
-  readonly createdAt?: Date;
-  readonly updatedAt?: Date;
+  readonly createdAt?: Date | string;
+  readonly updatedAt?: Date | string;
+  readonly dateString?: string;
+  readonly hourString?: string;
   readonly tickets?: EventTicket[];
 }

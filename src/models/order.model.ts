@@ -7,6 +7,6 @@ export interface Order {
   readonly payment?: number;
   readonly status: OrderStatus;
   readonly user: User | number;
-  readonly createdAt?: Date;
-  readonly updatedAt?: Date;
+  readonly createdAt?: Date | string;
+  readonly updatedAt?: Date | string;
 }
