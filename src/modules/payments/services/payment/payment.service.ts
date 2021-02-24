@@ -47,6 +47,8 @@ export class PaymentService {
       payment.provider = (gateway.provider as Provider).id;
       payment.type = PaymentType.CREDIT;
       payment.status = PaymentStatus.CREATED;
+
+      console.log(payment);
       this.rest.post<Payment>(`${this.path}/payments`, payment)
       .subscribe(response => {
         resolve(response.data);
