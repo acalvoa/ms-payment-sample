@@ -23,6 +23,7 @@ export class GatewayService {
       .subscribe(response => {
         resolve(response.data);
       }, error => {
+        console.log(error);
         reject(error);
       });
     });

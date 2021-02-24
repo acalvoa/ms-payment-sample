@@ -62,6 +62,7 @@ export class TicketService {
         .subscribe(response => {
           resolve(response.data);
         }, error => {
+          console.log(error);
           reject(error);
         });
       });

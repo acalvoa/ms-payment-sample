@@ -72,6 +72,7 @@ export class OrderService {
       }).subscribe(response => {
           resolve(response.data);
         }, error => {
+          console.log(error);
           reject(error);
         });
     });
@@ -85,6 +86,7 @@ export class OrderService {
       .subscribe(response => {
           resolve(response.data);
         }, error => {
+          console.log(error);
           reject(error);
         });
     });
