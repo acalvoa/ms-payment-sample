@@ -24,6 +24,7 @@ export class PaymentService {
 
   public async create(process: ProcessOrderDto): Promise<PaymentResponse> {
     const gateway = await this.getGateway(process.payment);
+    console.log(process);
     let payment = await this.createPayment(process, gateway);
     console.log(payment);
     const payOrder = await this.txPayment(gateway, payment);
