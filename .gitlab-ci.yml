@@ -12,12 +12,12 @@ base:
   services:
     - docker:dind
   script:
-    - docker build -f .docker/Dockerfile.base -t registry.gitlab.com/ecopass/backend/ms-platform:base .
-    - docker push registry.gitlab.com/ecopass/backend/ms-platform:base
+    - docker build -f .docker/Dockerfile.base -t registry.gitlab.com/ecopass/backend/ms-payments:base .
+    - docker push registry.gitlab.com/ecopass/backend/ms-payments:base
 
 # test:
 #   stage: test
-#   image: registry.gitlab.com/ecopass/backend/ms-platform:base
+#   image: registry.gitlab.com/ecopass/backend/ms-payments:base
 #   script:
 #     - yarn add @angular/cli
 #     - yarn run lint --fix
@@ -30,8 +30,8 @@ build:
   services:
     - docker:dind
   script:
-    - docker build -t registry.gitlab.com/ecopass/backend/ms-platform .
-    - docker push registry.gitlab.com/ecopass/backend/ms-platform:latest
+    - docker build -t registry.gitlab.com/ecopass/backend/ms-payments .
+    - docker push registry.gitlab.com/ecopass/backend/ms-payments:latest
 
 deploy:
   stage: deploy
@@ -43,4 +43,4 @@ deploy:
     - mkdir -p ~/.ssh
     - chmod 700 ~/.ssh
   script:
-    - ssh -o StrictHostKeyChecking=no -t ec2-user@ec2-34-235-114-195.compute-1.amazonaws.com "ssh -t ec2-user@manager 'cd ecopass-heimdall && ./deploy/ms-platform/deploy.production.sh && exit'"
+    - ssh -o StrictHostKeyChecking=no -t ec2-user@ec2-34-235-114-195.compute-1.amazonaws.com "ssh -t ec2-user@manager 'cd ecopass-heimdall && ./deploy/ms-payments/deploy.production.sh && exit'"
