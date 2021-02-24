@@ -51,10 +51,10 @@ export class OrderService {
         process.country, tickets, order, user, process.event, payment);
       return [payment, process];
     } catch (e) {
+      console.error(e);
       payment.status = PaymentStatus.ERROR;
       await this.paymentService.updatePayment(payment);
-      await this.updateOrderByTxp(payment.txp, { status: OrderStatus.FAILED });
-      console.error(e);
+      await this.updateOrder(payment.order, { status: OrderStatus.FAILED });
       return null;
     }
   }
@@ -77,20 +77,6 @@ export class OrderService {
         query,
         body
       }).subscribe(response => {
-          resolve(response.data);
-        }, error => {
-          console.log(error);
-          reject(error);
-        });
-    });
-  }
-
-  public async updateOrderByTxp(txp: string, payload: Partial<Order>): Promise<Order> {
-    return new Promise<Order>((resolve, reject) => {
-      const query = RequestQueryBuilder.create();
-      query.setFilter({ field: "txp", operator: "$eq", value: txp });
-      this.rest.patch<Order>(`${this.platform}/orders?${this.parser.parse(query)}`, payload)
-      .subscribe(response => {
           resolve(response.data);
         }, error => {
           console.log(error);
