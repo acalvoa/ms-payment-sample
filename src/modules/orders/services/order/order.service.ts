@@ -48,7 +48,7 @@ export class OrderService {
       const tickets = await this.ticketService.generateTickets(process, user);
       const order = await this.updateOrder(process.order.id, { status: OrderStatus.PAID });
       await this.notification.sendEmailNotification(process.userData.email, 
-        process.country, tickets, order, user, process.event, payment);
+        payment.country, tickets, order, user, process.event, payment);
       return [payment, process];
     } catch (e) {
       console.error(e);
@@ -79,7 +79,7 @@ export class OrderService {
       }).subscribe(response => {
           resolve(response.data);
         }, error => {
-          console.log(error);
+          console.error(error);
           reject(error);
         });
     });

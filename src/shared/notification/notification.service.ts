@@ -121,7 +121,6 @@ export class NotificationService {
   public async sendSinglePaidTicket(email: string, country: string, ticket: Ticket, 
     order: Order, user: User, event: Event, payment: Payment): Promise<boolean> {
     return new Promise<boolean>((resolve, reject) => {
-      console.log(`${this.path}/notifications/emails`);
       this.rest.post(`${this.path}/notifications/emails`, {
         template: TransactionalEmail.SINGLE_PAID_ADQUIRED,
         target: email,
@@ -147,7 +146,6 @@ export class NotificationService {
   public async sendMultiplePaidTicket(email: string, country: string, tickets: Ticket[], 
     order: Order, user: User, event: Event, payment: Payment): Promise<boolean> {
     return new Promise<boolean>((resolve, reject) => {
-      console.log(`${this.path}/notifications/emails`);
       this.rest.post(`${this.path}/notifications/emails`, {
         template: TransactionalEmail.MULTIPLE_PAID_ADQUIRED,
         target: email,
@@ -165,7 +163,7 @@ export class NotificationService {
         resolve(true);
       }, error => {
         console.error(error);
-        resolve(false);
+        reject(false);
       });
     });
   }
@@ -173,13 +171,10 @@ export class NotificationService {
   public async sendEmailNotification(email: string, country: string, tickets: Ticket[], 
     order: Order, user: User, event: Event, payment: Payment): Promise<boolean> {
       try {
-        console.log("Inciando envio de correo");
         if (tickets.length > 1) {
-          console.log("Inciando envio de correo - Multiple");
           return await this.sendMultiplePaidTicket(email, country, tickets, order, 
             user, event, payment);
         } else {
-          console.log("Inciando envio de correo - Simple");
           return await this.sendSinglePaidTicket(email, country, tickets[0], order, 
             user, event, payment);
         }
