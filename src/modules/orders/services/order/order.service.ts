@@ -41,7 +41,11 @@ export class OrderService {
       if (!process) {
         throw new NotFoundException('Process not found. Expire or deleted');
       }
-      await this.confirmPayment(payment, query, body);
+      const response = await this.confirmPayment(payment, query, body);
+      // If have metadata
+      if (response) {
+        payment.metadata = response;
+      }
       payment.status = PaymentStatus.PAID;
       payment.completedAt = new Date();
       await this.paymentService.updatePayment(payment);
@@ -52,6 +56,9 @@ export class OrderService {
       return [payment, process];
     } catch (e) {
       console.error(e);
+      if (e.data) {
+        payment.metadata = e.data;
+      }
       payment.status = PaymentStatus.ERROR;
       await this.paymentService.updatePayment(payment);
       await this.updateOrder(payment.order, { status: OrderStatus.FAILED });
@@ -70,8 +77,8 @@ export class OrderService {
   }
   
   public async confirmPayment(payment: Payment, query: any, 
-    body: any): Promise<boolean> {
-    return new Promise<boolean>((resolve, reject) => {
+    body: any): Promise<any> {
+    return new Promise<any>((resolve, reject) => {
       const provider = (payment.gateway as Gateway).provider as Provider;
       this.rest.post<any>(`${provider.app}/orders/confirm`, {
         query,

@@ -17,6 +17,7 @@ export class Payment {
   public currency: string;
   public tax: number;
   public amount: number;
+  public metadata: any;
   public status: PaymentStatus;
   public createdAt: Date | string;
   public completedAt: Date | string;
