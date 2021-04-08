@@ -10,6 +10,7 @@ import { CreateTicketDto } from "src/modules/users/dto/create-ticket.dto";
 import { ProcessOrderDto } from "src/modules/payments/dto/create-payment.dto";
 import * as jwt from 'jsonwebtoken';
 import { User } from "src/models/user.model";
+import { AnswersService } from "src/modules/questions/services/answer/answers.service";
 
 @Injectable()
 export class TicketService {
@@ -17,6 +18,7 @@ export class TicketService {
   private platform: string;
   
   constructor(private rest: HttpService,
+    private answerService: AnswersService,
     private config: ConfigService) {
     this.platform = this.config.get('PLATFORM_DATA');
   }
@@ -43,6 +45,15 @@ export class TicketService {
         tickets.push(result);
       }
     }
+    if (tickets.length === 1 && process.answers?.length > 0) {
+      for (const answer of process.answers) {
+        await this.answerService.createAnswer(answer.questionId, {
+          answer: answer.answer,
+          userId: user.id,
+          ticketId: tickets[0].id
+        });
+      }
+    } 
     return tickets;
   }
 

@@ -10,7 +10,6 @@ import { TicketService } from 'src/modules/tickets/services/ticket.service';
 import { RedisServerService } from 'src/shared/redis/redis.service';
 import { PaymentService } from 'src/modules/payments/services/payment/payment.service';
 import { OrderStatus } from 'src/enums/order-status.enum';
-import { RequestQueryBuilder } from '@nestjsx/crud-request';
 import { ParserService } from 'src/shared/parser/parser.service';
 import { NotificationService } from 'src/shared/notification/notification.service';
 import { AuthService } from 'src/modules/users/services/user.service';
@@ -38,8 +37,6 @@ export class OrderService {
       const process = await this.getProcessFromMemory(payment.order);
       const { email, dni, timezone } = process.userData;
       const user = await this.authService.getUserOrCreate(email, dni, timezone);
-
-      console.log(body);
       
       if (!process) {
         throw new NotFoundException('Process not found. Expire or deleted');

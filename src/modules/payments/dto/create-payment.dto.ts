@@ -2,6 +2,7 @@ import { IsArray, IsNotEmpty, IsNumber, IsObject, IsOptional, IsString } from "c
 import { Order } from "src/models/order.model";
 import { UserData } from "src/models/user-data.model";
 import { Event } from 'src/models/event.model';
+import { EventQuestion } from "src/models/event-question.model";
 
 export class ProcessOrderDto {
   @IsNotEmpty()
@@ -23,6 +24,10 @@ export class ProcessOrderDto {
   @IsNotEmpty()
   @IsObject()
   public userData: UserData;
+
+  @IsOptional()
+  @IsArray()
+  public answers: EventQuestion[];
 
   @IsOptional()
   @IsNumber()
