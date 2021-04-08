@@ -21,6 +21,7 @@ export class OrderController {
   }
 
   @Post(':id/confirm')
+  @Redirect()
   public async confirmPost(@Param('id') id: number, @Query() query: any,
     @Body() body: any): Promise<{ url: string }> {
     const [confirm, process] = await this.orderService.confirm(id, query, body);
