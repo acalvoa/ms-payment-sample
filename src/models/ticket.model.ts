@@ -15,6 +15,8 @@ export interface Ticket {
   readonly subevent: SubEvent |number;
   readonly holder: User | number;
   readonly discount: number;
+  readonly paid: number;
+  readonly commission: number;
   readonly origin: TicketOrigin;
   readonly status: TicketStatus;
   readonly reusable: boolean;
