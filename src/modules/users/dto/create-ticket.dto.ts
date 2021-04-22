@@ -19,4 +19,6 @@ export class CreateTicketDto implements Ticket {
   public holder: User | number;
   public origin: TicketOrigin;
   public discount: number;
+  public paid: number;
+  public commission: number;
 }
