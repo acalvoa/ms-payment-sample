@@ -3,6 +3,7 @@ import { Order } from "src/models/order.model";
 import { UserData } from "src/models/user-data.model";
 import { Event } from 'src/models/event.model';
 import { EventQuestion } from "src/models/event-question.model";
+import { AppliedDiscount } from "src/models/applied-discount.model";
 
 export class ProcessOrderDto {
   @IsNotEmpty()
@@ -19,7 +20,7 @@ export class ProcessOrderDto {
 
   @IsOptional()
   @IsObject()
-  public discount: any;
+  public discount: AppliedDiscount;
 
   @IsNotEmpty()
   @IsObject()

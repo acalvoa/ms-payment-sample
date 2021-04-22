@@ -18,6 +18,7 @@ import { AuthService } from 'src/modules/users/services/user.service';
 export class OrderService {
 
   private platform: string;
+  private discounts: string;
 
   constructor(private rest: HttpService,
     private config: ConfigService,
@@ -28,6 +29,7 @@ export class OrderService {
     private notification: NotificationService,
     private authService: AuthService) {
     this.platform = this.config.get('PLATFORM_DATA');
+    this.discounts = this.config.get('DISCOUNTS_APP');
   }
 
   public async confirm(id: number, query: any, body: any): 
@@ -51,6 +53,7 @@ export class OrderService {
       await this.paymentService.updatePayment(payment);
       const tickets = await this.ticketService.generateTickets(process, user);
       const order = await this.updateOrder(process.order.id, { status: OrderStatus.PAID });
+      await this.applyDiscount(process);
       await this.notification.sendEmailNotification(process.userData.email, 
         payment.country, tickets, order, user, process.event, payment);
       return [payment, process];
@@ -64,6 +67,21 @@ export class OrderService {
       await this.updateOrder(payment.order, { status: OrderStatus.FAILED });
       return null;
     }
+  }
+
+  private async applyDiscount(process: ProcessOrderDto): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      if (process.discount) {
+        this.rest.post<void>(`${this.discounts}/events/${process.event.id}/coupons/${process.discount.code}`, {})
+        .subscribe(response => {
+          resolve();
+        }, error => {
+          console.error(error);
+          reject(error);
+        });
+      }
+      resolve();
+    });
   }
 
   private async getProcessFromMemory(order: number): Promise<ProcessOrderDto> {
