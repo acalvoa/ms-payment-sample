@@ -41,6 +41,9 @@ export class PaymentService {
       payment.country = process.country;
       payment.order = process.order.id;
       payment.gateway = gateway.id;
+      payment.net = process.total / (1 + gateway.tax);
+      payment.tax = process.total - payment.net;
+      payment.commission = process.total * payment.commission;
       payment.currency = process.currency;
       payment.tx = process.order.tx;
       payment.provider = (gateway.provider as Provider).id;

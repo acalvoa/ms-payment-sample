@@ -11,6 +11,7 @@ import { ProcessOrderDto } from "src/modules/payments/dto/create-payment.dto";
 import * as jwt from 'jsonwebtoken';
 import { User } from "src/models/user.model";
 import { AnswersService } from "src/modules/questions/services/answer/answers.service";
+import { TicketDiscounted } from "src/models/ticket-discounted.model";
 
 @Injectable()
 export class TicketService {
@@ -35,7 +36,8 @@ export class TicketService {
         const result = await this.createByOrder(ticket, process.event,
           user, process.order, TicketOrigin.BOUGHT, 
           this.isUniqueOrder(process.tickets) ? TicketStatus.VALIDATED : TicketStatus.REGISTERED,
-          this.isUniqueOrder(process.tickets));
+          this.isUniqueOrder(process.tickets),
+          item.discounted);
         result.eventTicket = ticket;
         result.token = jwt.sign({ 
           event: process.event.id,
@@ -58,7 +60,8 @@ export class TicketService {
   }
 
   public createByOrder(ticket: EventTicket, event: Event, user: User, order: Order, 
-    origin: TicketOrigin, status: TicketStatus, owner: boolean): Promise<Ticket>  {
+    origin: TicketOrigin, status: TicketStatus, owner: boolean, 
+    discounted: TicketDiscounted): Promise<Ticket>  {
     return new Promise<Ticket>((resolve, reject) => {
       const target = new CreateTicketDto();
       target.eventTicket = ticket.id;
@@ -67,6 +70,9 @@ export class TicketService {
       target.order = order.id;
       target.user = owner ? user.id : null;
       target.holder = user.id;
+      target.discount = discounted ? discounted.discount : 0
+      target.paid = discounted ? discounted.price : ticket.price;
+      target.commission = target.paid * ticket.commission;
       target.origin = origin;
       this.rest.post<Ticket>(`${this.platform}/tickets`, target)
       .subscribe(response => {
