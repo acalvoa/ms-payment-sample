@@ -17,11 +17,13 @@ import { TicketDiscounted } from "src/models/ticket-discounted.model";
 export class TicketService {
 
   private platform: string;
+  private streaming: string;
   
   constructor(private rest: HttpService,
     private answerService: AnswersService,
     private config: ConfigService) {
     this.platform = this.config.get('PLATFORM_DATA');
+    this.streaming = this.config.get('STREAMING_MF');
   }
 
   private isUniqueOrder(tickets: any[]): boolean {
@@ -44,6 +46,7 @@ export class TicketService {
           eventTicket: ticket.id,
           ticket: result.id
         }, process.order.tx);
+        result.link = `${this.streaming}/${result.token}`
         tickets.push(result);
       }
     }

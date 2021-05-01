@@ -23,4 +23,5 @@ export interface Ticket {
   readonly createdAt: Date | string;
   readonly updatedAt?: Date | string;
   token?: string;
+  link?: string;
 }
