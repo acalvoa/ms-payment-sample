@@ -143,6 +143,31 @@ export class NotificationService {
     });
   }
 
+  public async sendSinglePaidTicketWithStreaming(email: string, country: string, ticket: Ticket, 
+    order: Order, user: User, event: Event, payment: Payment): Promise<boolean> {
+    return new Promise<boolean>((resolve, reject) => {
+      this.rest.post(`${this.path}/notifications/emails`, {
+        template: TransactionalEmail.SINGLE_PAID_ADQUIRED_WITH_TRANSMISION,
+        target: email,
+        country: country,
+        data: {
+          email,
+          country,
+          user,
+          ticket: this.getTicket(ticket, user),
+          order: this.getOrder(order, user),
+          event: this.getEvent(event, user),
+          payment: this.getPayment(payment, user)
+        },
+      }).subscribe(response => {
+        resolve(true);
+      }, error => {
+        console.error(error);
+        resolve(false);
+      });
+    });
+  }
+
   public async sendMultiplePaidTicket(email: string, country: string, tickets: Ticket[], 
     order: Order, user: User, event: Event, payment: Payment): Promise<boolean> {
     return new Promise<boolean>((resolve, reject) => {
@@ -175,8 +200,13 @@ export class NotificationService {
           return await this.sendMultiplePaidTicket(email, country, tickets, order, 
             user, event, payment);
         } else {
-          return await this.sendSinglePaidTicket(email, country, tickets[0], order, 
-            user, event, payment);
+          if (tickets[0].streamings && tickets[0].streamings.length > 0) {
+            return await this.sendSinglePaidTicketWithStreaming(email, country, 
+              tickets[0], order, user, event, payment);
+          } else {
+            return await this.sendSinglePaidTicket(email, country, tickets[0], 
+              order, user, event, payment);
+          }
         }
       } catch(e) {
         console.log(`Cannot send email notification. MS Notification - Error: ${e.code}`)

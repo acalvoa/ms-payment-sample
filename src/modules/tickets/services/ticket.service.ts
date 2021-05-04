@@ -12,6 +12,11 @@ import * as jwt from 'jsonwebtoken';
 import { User } from "src/models/user.model";
 import { AnswersService } from "src/modules/questions/services/answer/answers.service";
 import { TicketDiscounted } from "src/models/ticket-discounted.model";
+import { ReadStreamingDto } from "src/modules/orders/dto/read-streaming.dto";
+import { RequestQueryBuilder } from "@nestjsx/crud-request";
+import { plainToClass } from "class-transformer";
+import { ParserService } from "src/shared/parser/parser.service";
+import { CountryDomain } from "src/enums/country-domain.enum";
 
 @Injectable()
 export class TicketService {
@@ -21,7 +26,8 @@ export class TicketService {
   
   constructor(private rest: HttpService,
     private answerService: AnswersService,
-    private config: ConfigService) {
+    private config: ConfigService,
+    private parser: ParserService) {
     this.platform = this.config.get('PLATFORM_DATA');
     this.streaming = this.config.get('STREAMING_MF');
   }
@@ -41,12 +47,28 @@ export class TicketService {
           this.isUniqueOrder(process.tickets),
           item.discounted);
         result.eventTicket = ticket;
-        result.token = jwt.sign({ 
-          event: process.event.id,
-          eventTicket: ticket.id,
-          ticket: result.id
-        }, process.order.tx);
-        result.link = `${this.streaming}/${result.token}`
+        try {
+          result.streamings = await this.getByEventTicketId(ticket.id);
+        } catch (e) {
+          result.streamings = null;
+        }
+        
+        if (this.isUniqueOrder(process.tickets)) {
+          result.token = jwt.sign({ 
+            event: process.event.id,
+            eventTicket: ticket.id,
+            ticket: result.id
+          }, process.order.tx);
+          result.link = `${CountryDomain[process.country]}/streamings/${result.token}`;
+        } else {
+          result.token = jwt.sign({ 
+            event: process.event.id,
+            eventTicket: ticket.id,
+            ticket: result.id,
+            holder: result.holder
+          }, process.order.tx);
+          result.link = `${CountryDomain[process.country]}/events/${process.event.id}/register/${result.token}`;
+        }
         tickets.push(result);
       }
     }
@@ -60,6 +82,22 @@ export class TicketService {
       }
     } 
     return tickets;
+  }
+
+  public getByEventTicketId(eventTicketId: number): Promise<ReadStreamingDto[]> {
+    return new Promise((resolve, reject) => {
+      const query = RequestQueryBuilder.create()
+        .setJoin({ field: 'eventTicket' })
+        .setJoin({ field: 'streaming' })
+        .setFilter({ field: "eventTicket.id", operator: "$eq", value: eventTicketId });
+
+      this.rest.get(`${this.platform}/streamings/tickets?${this.parser.parse(query)}`)
+        .subscribe(response => {
+          resolve(response.data.map(streamingTicket => plainToClass(ReadStreamingDto, streamingTicket.streaming)));
+        }, error => {
+          reject(error);
+        });
+    });
   }
 
   public createByOrder(ticket: EventTicket, event: Event, user: User, order: Order, 

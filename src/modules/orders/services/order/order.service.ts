@@ -52,8 +52,10 @@ export class OrderService {
       payment.completedAt = new Date();
       await this.paymentService.updatePayment(payment);
       const tickets = await this.ticketService.generateTickets(process, user);
+      
       const order = await this.updateOrder(process.order.id, { status: OrderStatus.PAID });
       await this.applyDiscount(process);
+
       await this.notification.sendEmailNotification(process.userData.email, 
         payment.country, tickets, order, user, process.event, payment);
       return [payment, process];

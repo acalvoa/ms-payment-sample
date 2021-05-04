@@ -5,6 +5,7 @@ import { User } from "./user.model";
 import { Event } from './event.model';
 import { EventTicket } from "./event-ticket.model";
 import { TicketOrigin } from "src/enums/ticket-origin.enum";
+import { ReadStreamingDto } from "src/modules/orders/dto/read-streaming.dto";
 
 export interface Ticket {
   readonly id?: number;
@@ -22,6 +23,7 @@ export interface Ticket {
   readonly reusable: boolean;
   readonly createdAt: Date | string;
   readonly updatedAt?: Date | string;
+  streamings?: ReadStreamingDto[];
   token?: string;
   link?: string;
 }
