@@ -45,7 +45,7 @@ export class TicketService {
           user, process.order, TicketOrigin.BOUGHT, 
           this.isUniqueOrder(process.tickets) ? TicketStatus.VALIDATED : TicketStatus.REGISTERED,
           this.isUniqueOrder(process.tickets),
-          item.discounted);
+          item.discounted, process);
         result.eventTicket = ticket;
         try {
           result.streamings = await this.getByEventTicketId(ticket.id);
@@ -102,13 +102,14 @@ export class TicketService {
 
   public createByOrder(ticket: EventTicket, event: Event, user: User, order: Order, 
     origin: TicketOrigin, status: TicketStatus, owner: boolean, 
-    discounted: TicketDiscounted): Promise<Ticket>  {
+    discounted: TicketDiscounted, process: ProcessOrderDto): Promise<Ticket>  {
     return new Promise<Ticket>((resolve, reject) => {
       const target = new CreateTicketDto();
       target.eventTicket = ticket.id;
       target.event = event.id;
       target.status = status;
       target.order = order.id;
+      target.coupon = discounted && process.discount ? process.discount.code : null;
       target.user = owner ? user.id : null;
       target.holder = user.id;
       target.discount = discounted ? discounted.discount : 0
