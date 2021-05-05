@@ -13,6 +13,7 @@ dayjs.extend(timezone)
 import 'dayjs/locale/es'
 import { Payment } from 'src/models/payment.model';
 import { User } from 'src/models/user.model';
+import { ReadStreamingDto } from 'src/modules/orders/dto/read-streaming.dto';
 
 @Injectable()
 export class NotificationService {
@@ -24,7 +25,7 @@ export class NotificationService {
       this.path = configService.get<string>('NOTIFICATION_APP');
   }
 
-  private getEventDate(event: Event, user: User): string {
+  private getEventDate(event: Event | ReadStreamingDto, user: User): string {
     const sdate = dayjs(event.startDate).tz(user.timezone);
     const edate = dayjs(event.endDate).tz(user.timezone);
 
@@ -56,7 +57,7 @@ export class NotificationService {
     return target.format(format);
   }
 
-  private getHour(event: Event, user: User): string {
+  private getHour(event: Event | ReadStreamingDto, user: User): string {
     const sdate = dayjs(event.startDate).tz(user.timezone);
     const edate = dayjs(event.endDate).tz(user.timezone);
     return `De ${sdate.format(`HH:ss`)} a ${edate.format(`HH:ss`)} horas`;
@@ -68,6 +69,13 @@ export class NotificationService {
       eventTicket: ticket.eventTicket 
         ? this.getEventTicket(ticket.eventTicket as EventTicket, user)
         : null,
+      streamings: ticket.streamings.map(streaming => {
+        return {
+          ...streaming,
+          dateString: this.getEventDate(streaming, user),
+          hourString: this.getHour(streaming, user)
+        };
+      }),
       createdAt: this.getDateFormated(ticket.createdAt.toString(), 
         user.timezone, 'DD-MM-YYYY HH:mm:ss'),
       updatedAt: ticket.updatedAt ? this.getDateFormated(ticket.updatedAt.toString(), 
