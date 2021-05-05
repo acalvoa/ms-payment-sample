@@ -69,13 +69,13 @@ export class NotificationService {
       eventTicket: ticket.eventTicket 
         ? this.getEventTicket(ticket.eventTicket as EventTicket, user)
         : null,
-      streamings: ticket.streamings.map(streaming => {
+      streamings: ticket.streamings ? ticket.streamings.map(streaming => {
         return {
           ...streaming,
           dateString: this.getEventDate(streaming, user),
           hourString: this.getHour(streaming, user)
         };
-      }),
+      }) : null,
       createdAt: this.getDateFormated(ticket.createdAt.toString(), 
         user.timezone, 'DD-MM-YYYY HH:mm:ss'),
       updatedAt: ticket.updatedAt ? this.getDateFormated(ticket.updatedAt.toString(), 
@@ -187,7 +187,7 @@ export class NotificationService {
           email,
           country,
           user,
-          ticket: tickets.map(ticket => this.getTicket(ticket, user)),
+          tickets: tickets.map(ticket => this.getTicket(ticket, user)),
           order: this.getOrder(order, user),
           event: this.getEvent(event, user),
           payment: this.getPayment(payment, user)
