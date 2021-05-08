@@ -106,6 +106,7 @@ export class TicketService {
     return new Promise<Ticket>((resolve, reject) => {
       const target = new CreateTicketDto();
       target.eventTicket = ticket.id;
+      target.dni = process.userData.dni;
       target.event = event.id;
       target.status = status;
       target.order = order.id;

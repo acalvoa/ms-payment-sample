@@ -9,6 +9,7 @@ import { ReadStreamingDto } from "src/modules/orders/dto/read-streaming.dto";
 
 export interface Ticket {
   readonly id?: number;
+  readonly dni: string;
   readonly user: User | number;
   eventTicket: EventTicket | number;
   readonly event: Event | number;

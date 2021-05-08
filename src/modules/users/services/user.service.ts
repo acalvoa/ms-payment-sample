@@ -13,12 +13,15 @@ export class AuthService {
       this.path = this.configService.get('AUTHORIZATION_APP');
   }
 
-  public getUserOrCreate(email: string, dni: string, timezone: string = null): Promise<User>{
+  public getUserOrCreate(email: string, dni: string, timezone: string = null, 
+      name: string, lastname: string): Promise<User>{
     return new Promise<User>((resolve, reject) => {
       this.rest.put<User>(`${this.path}/users`, {
         email,
         dni,
-        timezone
+        timezone,
+        name,
+        lastname
       }).subscribe(response => {
         resolve(response.data);
       }, error => {
