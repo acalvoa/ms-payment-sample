@@ -37,8 +37,8 @@ export class OrderService {
     const payment = await this.paymentService.getPayment(id);
     try {
       const process = await this.getProcessFromMemory(payment.order);
-      const { email, dni, timezone } = process.userData;
-      const user = await this.authService.getUserOrCreate(email, dni, timezone);
+      const { email, dni, timezone, name, lastname } = process.userData;
+      const user = await this.authService.getUserOrCreate(email, dni, timezone, name, lastname);
       
       if (!process) {
         throw new NotFoundException('Process not found. Expire or deleted');
