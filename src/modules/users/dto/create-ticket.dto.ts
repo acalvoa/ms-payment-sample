@@ -9,7 +9,6 @@ import { User } from "src/models/user.model";
 
 export class CreateTicketDto implements Ticket {
   public user: number | User;
-  public dni: string;
   public eventTicket: number | EventTicket;
   public event: number | Event;
   public order: number | Order;

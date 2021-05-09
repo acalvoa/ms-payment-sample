@@ -17,6 +17,8 @@ import { RequestQueryBuilder } from "@nestjsx/crud-request";
 import { plainToClass } from "class-transformer";
 import { ParserService } from "src/shared/parser/parser.service";
 import { CountryDomain } from "src/enums/country-domain.enum";
+import { ConsumerService } from "../consumer/consumer.service";
+import { Consumer } from "src/models/consumer.model";
 
 @Injectable()
 export class TicketService {
@@ -27,7 +29,8 @@ export class TicketService {
   constructor(private rest: HttpService,
     private answerService: AnswersService,
     private config: ConfigService,
-    private parser: ParserService) {
+    private parser: ParserService,
+    private consumerService: ConsumerService) {
     this.platform = this.config.get('PLATFORM_DATA');
     this.streaming = this.config.get('STREAMING_MF');
   }
@@ -47,6 +50,11 @@ export class TicketService {
           this.isUniqueOrder(process.tickets),
           item.discounted, process);
         result.eventTicket = ticket;
+
+        // Create the consumer
+        const consumer = new Consumer({ ...process.userData, ticket: result.id });
+        result.consumers = [await this.consumerService.createConsumer(consumer)];
+
         try {
           result.streamings = await this.getByEventTicketId(ticket.id);
         } catch (e) {
@@ -106,7 +114,6 @@ export class TicketService {
     return new Promise<Ticket>((resolve, reject) => {
       const target = new CreateTicketDto();
       target.eventTicket = ticket.id;
-      target.dni = process.userData.dni;
       target.event = event.id;
       target.status = status;
       target.order = order.id;

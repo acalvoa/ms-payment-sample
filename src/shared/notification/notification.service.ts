@@ -14,6 +14,7 @@ import 'dayjs/locale/es'
 import { Payment } from 'src/models/payment.model';
 import { User } from 'src/models/user.model';
 import { ReadStreamingDto } from 'src/modules/orders/dto/read-streaming.dto';
+import { Consumer } from 'src/models/consumer.model';
 
 @Injectable()
 export class NotificationService {
@@ -127,7 +128,7 @@ export class NotificationService {
   }
  
   public async sendSinglePaidTicket(email: string, country: string, ticket: Ticket, 
-    order: Order, user: User, event: Event, payment: Payment): Promise<boolean> {
+    order: Order, user: User, event: Event, payment: Payment, consumer: Consumer): Promise<boolean> {
     return new Promise<boolean>((resolve, reject) => {
       this.rest.post(`${this.path}/notifications/emails`, {
         template: TransactionalEmail.SINGLE_PAID_ADQUIRED,
@@ -140,7 +141,8 @@ export class NotificationService {
           ticket: this.getTicket(ticket, user),
           order: this.getOrder(order, user),
           event: this.getEvent(event, user),
-          payment: this.getPayment(payment, user)
+          payment: this.getPayment(payment, user),
+          consumer
         },
       }).subscribe(response => {
         resolve(true);
@@ -152,7 +154,7 @@ export class NotificationService {
   }
 
   public async sendSinglePaidTicketWithStreaming(email: string, country: string, ticket: Ticket, 
-    order: Order, user: User, event: Event, payment: Payment): Promise<boolean> {
+    order: Order, user: User, event: Event, payment: Payment, consumer: Consumer): Promise<boolean> {
     return new Promise<boolean>((resolve, reject) => {
       this.rest.post(`${this.path}/notifications/emails`, {
         template: TransactionalEmail.SINGLE_PAID_ADQUIRED_WITH_TRANSMISION,
@@ -165,7 +167,8 @@ export class NotificationService {
           ticket: this.getTicket(ticket, user),
           order: this.getOrder(order, user),
           event: this.getEvent(event, user),
-          payment: this.getPayment(payment, user)
+          payment: this.getPayment(payment, user),
+          consumer
         },
       }).subscribe(response => {
         resolve(true);
@@ -177,7 +180,7 @@ export class NotificationService {
   }
 
   public async sendMultiplePaidTicket(email: string, country: string, tickets: Ticket[], 
-    order: Order, user: User, event: Event, payment: Payment): Promise<boolean> {
+    order: Order, user: User, event: Event, payment: Payment, consumer: Consumer): Promise<boolean> {
     return new Promise<boolean>((resolve, reject) => {
       this.rest.post(`${this.path}/notifications/emails`, {
         template: TransactionalEmail.MULTIPLE_PAID_ADQUIRED,
@@ -190,7 +193,8 @@ export class NotificationService {
           tickets: tickets.map(ticket => this.getTicket(ticket, user)),
           order: this.getOrder(order, user),
           event: this.getEvent(event, user),
-          payment: this.getPayment(payment, user)
+          payment: this.getPayment(payment, user),
+          consumer
         },
       }).subscribe(response => {
         resolve(true);
@@ -202,18 +206,18 @@ export class NotificationService {
   }
 
   public async sendEmailNotification(email: string, country: string, tickets: Ticket[], 
-    order: Order, user: User, event: Event, payment: Payment): Promise<boolean> {
+    order: Order, user: User, event: Event, payment: Payment, consumer: Consumer): Promise<boolean> {
       try {
         if (tickets.length > 1) {
           return await this.sendMultiplePaidTicket(email, country, tickets, order, 
-            user, event, payment);
+            user, event, payment, consumer);
         } else {
           if (tickets[0].streamings && tickets[0].streamings.length > 0) {
             return await this.sendSinglePaidTicketWithStreaming(email, country, 
-              tickets[0], order, user, event, payment);
+              tickets[0], order, user, event, payment, consumer);
           } else {
             return await this.sendSinglePaidTicket(email, country, tickets[0], 
-              order, user, event, payment);
+              order, user, event, payment, consumer);
           }
         }
       } catch(e) {

@@ -6,7 +6,7 @@ import { Order } from 'src/models/order.model';
 import { Payment } from 'src/models/payment.model';
 import { Provider } from 'src/models/provider.model';
 import { ProcessOrderDto } from 'src/modules/payments/dto/create-payment.dto';
-import { TicketService } from 'src/modules/tickets/services/ticket.service';
+import { TicketService } from 'src/modules/tickets/services/ticket/ticket.service';
 import { RedisServerService } from 'src/shared/redis/redis.service';
 import { PaymentService } from 'src/modules/payments/services/payment/payment.service';
 import { OrderStatus } from 'src/enums/order-status.enum';
@@ -57,7 +57,7 @@ export class OrderService {
       await this.applyDiscount(process);
 
       await this.notification.sendEmailNotification(process.userData.email, 
-        payment.country, tickets, order, user, process.event, payment);
+        payment.country, tickets, order, user, process.event, payment, tickets[0].consumers[0]);
       return [payment, process];
     } catch (e) {
       console.error(e);
