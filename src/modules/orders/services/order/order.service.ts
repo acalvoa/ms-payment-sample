@@ -35,8 +35,8 @@ export class OrderService {
   public async confirm(id: number, query: any, body: any): 
   Promise<[Payment, ProcessOrderDto]> {
     const payment = await this.paymentService.getPayment(id);
+    const process = await this.getProcessFromMemory(payment.order);
     try {
-      const process = await this.getProcessFromMemory(payment.order);
       const { email, dni, timezone, name, lastname } = process.userData;
       const user = await this.authService.getUserOrCreate(email, dni, timezone, name, lastname);
       
@@ -60,14 +60,13 @@ export class OrderService {
         payment.country, tickets, order, user, process.event, payment, tickets[0].consumers[0]);
       return [payment, process];
     } catch (e) {
-      console.error(e);
       if (e.data) {
         payment.metadata = e.data;
       }
       payment.status = PaymentStatus.ERROR;
       await this.paymentService.updatePayment(payment);
       await this.updateOrder(payment.order, { status: OrderStatus.FAILED });
-      return null;
+      return [payment, process];
     }
   }
 

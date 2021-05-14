@@ -1,4 +1,4 @@
-import { HttpException, HttpService, Injectable } from '@nestjs/common';
+import { HttpService, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { TransactionalEmail } from 'src/enums/transactional-email.enum';
 import { Order } from 'src/models/order.model';
