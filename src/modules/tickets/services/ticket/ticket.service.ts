@@ -122,7 +122,7 @@ export class TicketService {
       target.holder = user.id;
       target.discount = discounted ? discounted.discount : 0
       target.paid = discounted ? discounted.price : ticket.price;
-      target.commission = target.paid * ticket.commission;
+      target.commission = discounted && discounted.price === 0 ? 0 : ticket.price * ticket.commission;
       target.origin = origin;
       this.rest.post<Ticket>(`${this.platform}/tickets`, target)
       .subscribe(response => {
