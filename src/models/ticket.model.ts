@@ -29,4 +29,5 @@ export class Ticket {
   public streamings?: ReadStreamingDto[];
   public token?: string;
   public link?: string;
+  public total?: number;
 }

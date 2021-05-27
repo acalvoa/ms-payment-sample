@@ -67,6 +67,7 @@ export class NotificationService {
   public getTicket(ticket: Ticket, user: User): Ticket {
     return {
       ...ticket,
+      total: ticket.paid + ticket.commission,
       eventTicket: ticket.eventTicket 
         ? this.getEventTicket(ticket.eventTicket as EventTicket, user)
         : null,
