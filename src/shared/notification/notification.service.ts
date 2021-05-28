@@ -61,7 +61,7 @@ export class NotificationService {
   private getHour(event: Event | ReadStreamingDto, user: User): string {
     const sdate = dayjs(event.startDate).tz(user.timezone);
     const edate = dayjs(event.endDate).tz(user.timezone);
-    return `De ${sdate.format(`HH:ss`)} a ${edate.format(`HH:ss`)} horas`;
+    return `De ${sdate.format(`HH:mm`)} a ${edate.format(`HH:mm`)} horas`;
   }
 
   public getTicket(ticket: Ticket, user: User): Ticket {
