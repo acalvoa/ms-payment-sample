@@ -84,7 +84,7 @@ export class TicketService {
       for (const answer of process.answers) {
         await this.answerService.createAnswer(answer.questionId, {
           answer: answer.answer,
-          userId: user.id,
+          consumerId: user.id,
           ticketId: tickets[0].id
         });
       }

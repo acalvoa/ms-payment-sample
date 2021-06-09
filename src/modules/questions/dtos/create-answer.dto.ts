@@ -7,7 +7,7 @@ export class CreateAnswerDto {
 
   @IsNotEmpty()
   @IsNumber()
-  readonly userId: number;
+  readonly consumerId: number;
 
   @IsNotEmpty()
   @IsNumber()
