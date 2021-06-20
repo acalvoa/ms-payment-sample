@@ -25,17 +25,34 @@ stages:
 build:
   stage: build
   image: docker:19.03.13
+  only:
+    - tags
   before_script:
     - echo "$DOCKER_REGISTRY_PASS" | docker login registry.gitlab.com --username $DOCKER_REGISTRY_USER --password-stdin
   services:
     - docker:dind
   script:
-    - docker build -t registry.gitlab.com/ecopass/backend/ms-payments .
+    - docker build -t registry.gitlab.com/ecopass/backend/ms-payments:latest .
     - docker push registry.gitlab.com/ecopass/backend/ms-payments:latest
+
+build-staging:
+  stage: build
+  image: docker:19.03.13
+  only:
+    - master
+  before_script:
+    - echo "$DOCKER_REGISTRY_PASS" | docker login registry.gitlab.com --username $DOCKER_REGISTRY_USER --password-stdin
+  services:
+    - docker:dind
+  script:
+    - docker build -t registry.gitlab.com/ecopass/backend/ms-payments:staging .
+    - docker push registry.gitlab.com/ecopass/backend/ms-payments:staging
 
 deploy:
   stage: deploy
   image: alpine
+  only:
+    - tags
   before_script:
     - apk add openssh-client
     - eval $(ssh-agent -s)
@@ -44,3 +61,17 @@ deploy:
     - chmod 700 ~/.ssh
   script:
     - ssh -o StrictHostKeyChecking=no -t ec2-user@ec2-34-235-114-195.compute-1.amazonaws.com "ssh -t ec2-user@manager 'cd ecopass-heimdall && ./deploy/ms-payments/deploy.production.sh && exit'"
+
+deploy-staging:
+  stage: deploy
+  image: alpine
+  only:
+    - master
+  before_script:
+    - apk add openssh-client
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+  script:
+    - ssh -o StrictHostKeyChecking=no -t ec2-user@ec2-34-235-114-195.compute-1.amazonaws.com "ssh -t ec2-user@staging 'cd ecopass-heimdall && ./deploy/ms-payments/deploy.staging.sh && exit'"
