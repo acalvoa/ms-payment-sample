@@ -1,4 +1,6 @@
 import { Module } from '@nestjs/common';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { RavenInterceptor, RavenModule } from 'nest-raven';
 import { GatewaysModule } from './modules/gateways/gateways.module';
 import { OrdersModule } from './modules/orders/orders.module';
 import { PaymentsModule } from './modules/payments/payments.module';
@@ -11,9 +13,15 @@ import { SharedModule } from './shared/shared.module';
     PaymentsModule,
     SharedModule,
     OrdersModule,
-    QuestionsModule
+    QuestionsModule,
+    RavenModule
+  ],
+  providers: [
+    {
+      provide: APP_INTERCEPTOR,
+      useValue: new RavenInterceptor(),
+    },
   ],
   controllers: [],
-  providers: [],
 })
 export class AppModule {}

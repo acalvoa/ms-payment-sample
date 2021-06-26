@@ -1,5 +1,4 @@
-import { HttpService, Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { Injectable } from '@nestjs/common';
 import { TransactionalEmail } from 'src/enums/transactional-email.enum';
 import { Order } from 'src/models/order.model';
 import { Ticket } from 'src/models/ticket.model';
@@ -15,15 +14,17 @@ import { Payment } from 'src/models/payment.model';
 import { User } from 'src/models/user.model';
 import { ReadStreamingDto } from 'src/modules/orders/dto/read-streaming.dto';
 import { Consumer } from 'src/models/consumer.model';
+import { SqsService } from '@ssut/nestjs-sqs';
+import { v4 as uuidv4 } from 'uuid';
+import { config } from 'dotenv';
+import { GeneralException } from 'src/exceptions/general-exception';
+
+config();
 
 @Injectable()
 export class NotificationService {
 
-  private path: string;
-
-  constructor(private rest: HttpService,
-    private configService: ConfigService) {
-      this.path = configService.get<string>('NOTIFICATION_APP');
+  constructor(private readonly sqsService: SqsService) {
   }
 
   private getEventDate(event: Event | ReadStreamingDto, user: User): string {
@@ -130,79 +131,58 @@ export class NotificationService {
  
   public async sendSinglePaidTicket(email: string, country: string, ticket: Ticket, 
     order: Order, user: User, event: Event, payment: Payment, consumer: Consumer): Promise<boolean> {
-    return new Promise<boolean>((resolve, reject) => {
-      this.rest.post(`${this.path}/notifications/emails`, {
-        template: TransactionalEmail.SINGLE_PAID_ADQUIRED,
-        target: email,
-        country: country,
-        data: {
-          email,
-          country,
-          user,
-          ticket: this.getTicket(ticket, user),
-          order: this.getOrder(order, user),
-          event: this.getEvent(event, user),
-          payment: this.getPayment(payment, user),
-          consumer
-        },
-      }).subscribe(response => {
-        resolve(true);
-      }, error => {
-        console.error(error);
-        resolve(false);
-      });
+    return await this.sendNotification({
+      template: TransactionalEmail.SINGLE_PAID_ADQUIRED,
+      target: email,
+      country: country,
+      data: {
+        email,
+        country,
+        user,
+        ticket: this.getTicket(ticket, user),
+        order: this.getOrder(order, user),
+        event: this.getEvent(event, user),
+        payment: this.getPayment(payment, user),
+        consumer
+      },
     });
   }
 
   public async sendSinglePaidTicketWithStreaming(email: string, country: string, ticket: Ticket, 
     order: Order, user: User, event: Event, payment: Payment, consumer: Consumer): Promise<boolean> {
-    return new Promise<boolean>((resolve, reject) => {
-      this.rest.post(`${this.path}/notifications/emails`, {
-        template: TransactionalEmail.SINGLE_PAID_ADQUIRED_WITH_TRANSMISION,
-        target: email,
-        country: country,
-        data: {
-          email,
-          country,
-          user,
-          ticket: this.getTicket(ticket, user),
-          order: this.getOrder(order, user),
-          event: this.getEvent(event, user),
-          payment: this.getPayment(payment, user),
-          consumer
-        },
-      }).subscribe(response => {
-        resolve(true);
-      }, error => {
-        console.error(error);
-        resolve(false);
-      });
+    return await this.sendNotification({
+      template: TransactionalEmail.SINGLE_PAID_ADQUIRED_WITH_TRANSMISION,
+      target: email,
+      country: country,
+      data: {
+        email,
+        country,
+        user,
+        ticket: this.getTicket(ticket, user),
+        order: this.getOrder(order, user),
+        event: this.getEvent(event, user),
+        payment: this.getPayment(payment, user),
+        consumer
+      },
     });
   }
 
   public async sendMultiplePaidTicket(email: string, country: string, tickets: Ticket[], 
     order: Order, user: User, event: Event, payment: Payment, consumer: Consumer): Promise<boolean> {
-    return new Promise<boolean>((resolve, reject) => {
-      this.rest.post(`${this.path}/notifications/emails`, {
-        template: TransactionalEmail.MULTIPLE_PAID_ADQUIRED,
-        target: email,
-        country: country,
-        data: {
-          email,
-          country,
-          user,
-          tickets: tickets.map(ticket => this.getTicket(ticket, user)),
-          order: this.getOrder(order, user),
-          event: this.getEvent(event, user),
-          payment: this.getPayment(payment, user),
-          consumer
-        },
-      }).subscribe(response => {
-        resolve(true);
-      }, error => {
-        console.error(error);
-        reject(false);
-      });
+    return await this.sendNotification({
+      template: TransactionalEmail.MULTIPLE_PAID_ADQUIRED,
+      target: email,
+      country: country,
+      data: {
+        email,
+        country,
+        user,
+        tickets: tickets.map(ticket => this.getTicket(ticket, user)),
+        order: this.getOrder(order, user),
+        event: this.getEvent(event, user),
+        payment: this.getPayment(payment, user),
+        consumer
+      },
     });
   }
 
@@ -224,5 +204,21 @@ export class NotificationService {
       } catch(e) {
         console.log(`Cannot send email notification. MS Notification - Error: ${e.code}`)
       }
+  }
+
+  private async sendNotification(message: any): Promise<boolean> {
+    try {
+      await this.sqsService.send(process.env.AWS_SQS_QUEUE_NAME_NOTIFICATION, {
+        id: uuidv4(),
+        body: message,
+        groupId: `email-notification-${uuidv4()}`,
+        deduplicationId: uuidv4(),
+        delaySeconds: 0,
+      });
+      return true;
+    } catch (e) {
+      new GeneralException(e);
+      return false;
+    }
   }
 }

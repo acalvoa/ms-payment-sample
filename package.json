@@ -28,16 +28,21 @@
     "@nestjs/platform-fastify": "^7.6.12",
     "@nestjs/typeorm": "^7.1.4",
     "@nestjsx/crud-request": "^5.0.0-alpha.3",
+    "@sentry/node": "^6.7.2",
+    "@sentry/tracing": "^6.7.2",
+    "@ssut/nestjs-sqs": "^1.0.0",
     "class-transformer": "^0.4.0",
     "class-validator": "^0.12.2",
     "dayjs": "^1.10.4",
     "jsonwebtoken": "^8.5.1",
     "mysql": "^2.18.1",
+    "nest-raven": "^7.2.0",
     "redis": "^3.0.2",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^6.5.4",
-    "typeorm": "^0.2.29"
+    "typeorm": "^0.2.29",
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "@nestjs/cli": "^7.0.0",
