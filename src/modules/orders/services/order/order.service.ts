@@ -39,7 +39,7 @@ export class OrderService {
     try {
       const { email, dni, timezone, name, lastname } = process.userData;
       console.log(process.userData);
-      const user = await this.authService.getUserOrCreate(email, dni, timezone, name, lastname);
+      const user = await this.authService.getUserOrCreate(email, dni, name, lastname, timezone);
       
       if (!process) {
         throw new NotFoundException('Process not found. Expire or deleted');

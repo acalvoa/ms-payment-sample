@@ -13,9 +13,16 @@ export class AuthService {
       this.path = this.configService.get('AUTHORIZATION_APP');
   }
 
-  public getUserOrCreate(email: string, dni: string, timezone: string = null, 
-      name: string, lastname: string): Promise<User>{
+  public getUserOrCreate(email: string, dni: string, 
+      name: string, lastname: string, timezone: string = null): Promise<User>{
     return new Promise<User>((resolve, reject) => {
+      console.log({
+        email,
+        dni,
+        timezone,
+        name,
+        lastname
+      })
       this.rest.put<User>(`${this.path}/users`, {
         email,
         dni,
