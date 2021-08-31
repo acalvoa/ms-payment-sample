@@ -103,6 +103,7 @@ export class OrderService {
         query,
         body
       }).subscribe(response => {
+          console.log(response);
           resolve(response.data);
         }, error => {
           console.error(error);

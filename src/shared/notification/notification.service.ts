@@ -202,7 +202,8 @@ export class NotificationService {
           }
         }
       } catch(e) {
-        console.log(`Cannot send email notification. MS Notification - Error: ${e.code}`)
+        new GeneralException(e);
+        console.error(`Cannot send email notification. MS Notification - Error: ${e}`);
       }
   }
 
