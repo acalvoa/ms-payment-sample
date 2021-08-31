@@ -38,6 +38,7 @@ export class OrderService {
     const process = await this.getProcessFromMemory(payment.order);
     try {
       const { email, dni, timezone, name, lastname } = process.userData;
+      console.log(process.userData);
       const user = await this.authService.getUserOrCreate(email, dni, timezone, name, lastname);
       
       if (!process) {
