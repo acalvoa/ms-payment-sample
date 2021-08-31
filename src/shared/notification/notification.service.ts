@@ -203,6 +203,7 @@ export class NotificationService {
         }
       } catch(e) {
         new GeneralException(e);
+        console.error(e);
         console.error(`Cannot send email notification. MS Notification - Error: ${e}`);
       }
   }

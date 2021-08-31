@@ -44,6 +44,7 @@ export class OrderService {
         throw new NotFoundException('Process not found. Expire or deleted');
       }
       const response = await this.confirmPayment(payment, query, body);
+      console.log(response)
       // If have metadata
       if (response) {
         payment.metadata = response;
@@ -55,6 +56,8 @@ export class OrderService {
       
       const order = await this.updateOrder(process.order.id, { status: OrderStatus.PAID });
       await this.applyDiscount(process);
+
+      console.log(user)
 
       await this.notification.sendEmailNotification(process.userData.email, 
         payment.country, tickets, order, user, process.event, payment, tickets[0].consumers[0]);
