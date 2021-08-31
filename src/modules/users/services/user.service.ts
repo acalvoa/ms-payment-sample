@@ -16,13 +16,6 @@ export class AuthService {
   public getUserOrCreate(email: string, dni: string, 
       name: string, lastname: string, timezone: string = null): Promise<User>{
     return new Promise<User>((resolve, reject) => {
-      console.log({
-        email,
-        dni,
-        timezone,
-        name,
-        lastname
-      })
       this.rest.put<User>(`${this.path}/users`, {
         email,
         dni,
