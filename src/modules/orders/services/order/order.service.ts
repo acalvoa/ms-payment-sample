@@ -13,6 +13,7 @@ import { OrderStatus } from 'src/enums/order-status.enum';
 import { ParserService } from 'src/shared/parser/parser.service';
 import { NotificationService } from 'src/shared/notification/notification.service';
 import { AuthService } from 'src/modules/users/services/user.service';
+import { GeneralException } from 'src/exceptions/general-exception';
 
 @Injectable()
 export class OrderService {
@@ -22,7 +23,6 @@ export class OrderService {
 
   constructor(private rest: HttpService,
     private config: ConfigService,
-    private parser: ParserService,
     private redis: RedisServerService,
     private paymentService: PaymentService,
     private ticketService: TicketService,
@@ -36,9 +36,10 @@ export class OrderService {
   Promise<[Payment, ProcessOrderDto]> {
     const payment = await this.paymentService.getPayment(id);
     const process = await this.getProcessFromMemory(payment.order);
+    let user = null;
     try {
       const { email, dni, timezone, name, lastname } = process.userData;
-      const user = await this.authService.getUserOrCreate(email, dni, name, lastname, timezone);
+      user = await this.authService.getUserOrCreate(email, dni, name, lastname, timezone);
       
       if (!process) {
         throw new NotFoundException('Process not found. Expire or deleted');
@@ -51,15 +52,8 @@ export class OrderService {
       payment.status = PaymentStatus.PAID;
       payment.completedAt = new Date();
       await this.paymentService.updatePayment(payment);
-      const tickets = await this.ticketService.generateTickets(process, user);
-      
-      const order = await this.updateOrder(process.order.id, { status: OrderStatus.PAID });
-      await this.applyDiscount(process);
-
-      await this.notification.sendEmailNotification(process.userData.email, 
-        payment.country, tickets, order, user, process.event, payment, tickets[0].consumers[0]);
-      return [payment, process];
     } catch (e) {
+      new GeneralException(e);
       if (e.data) {
         payment.metadata = e.data;
       }
@@ -67,6 +61,20 @@ export class OrderService {
       await this.paymentService.updatePayment(payment);
       await this.updateOrder(payment.order, { status: OrderStatus.FAILED });
       return [payment, process];
+    }
+
+    try {
+      const tickets = await this.ticketService.generateTickets(process, user);
+      
+      const order = await this.updateOrder(payment.order, { status: OrderStatus.PAID });
+      await this.applyDiscount(process);
+
+      await this.notification.sendEmailNotification(process.userData.email, 
+        payment.country, tickets, order, user, process.event, payment, tickets[0].consumers[0]);
+      return [payment, process];
+    } catch (e) {
+      new GeneralException(e);
+      console.error(e)
     }
   }
 
