@@ -25,6 +25,7 @@ export class PaymentService {
   public async create(process: ProcessOrderDto): Promise<PaymentResponse> {
     const gateway = await this.getGateway(process.payment);
     let payment = await this.createPayment(process, gateway);
+    this.attachMetadata(payment, process);
     const payOrder = await this.txPayment(gateway, payment);
     payment.txp = payOrder.tx;
     payment = await this.updatePayment(payment);
@@ -32,6 +33,14 @@ export class PaymentService {
       payment,
       gatewayInfo: payOrder
     }
+  }
+
+  public attachMetadata(payment: Payment, process: ProcessOrderDto): void {
+    payment.metadata = {
+      event: process.event,
+      userData: process.userData,
+      tickets: process.tickets
+    };
   }
 
   public async createPayment(process: ProcessOrderDto, gateway: Gateway): Promise<Payment> {
@@ -96,7 +105,6 @@ export class PaymentService {
       .subscribe(response => {
         resolve(response.data);
       }, error => {
-        console.error(error);
         reject(error);
       });
     });
