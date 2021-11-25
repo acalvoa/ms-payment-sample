@@ -31,10 +31,4 @@ export class OrderController {
     const [confirm, process] = await this.orderService.confirm(id, query, body);
     return { url: `${this.eventsMF}/events/${process.event.id}/orders/${process.order.id}` };
   }
-
-  @Post('fulfillment')
-  @HttpCode(200)
-  public test(): void {
-    console.log('quepasa')
-  }
 }
