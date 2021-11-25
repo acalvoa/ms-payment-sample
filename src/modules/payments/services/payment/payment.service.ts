@@ -120,7 +120,6 @@ export class PaymentService {
         .subscribe(response => {
           resolve((response.data && response.data.length > 0) ? response.data[0] : null);
         }, error => {
-          console.error(error);
           reject(error);
         });
     });
