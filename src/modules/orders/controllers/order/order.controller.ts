@@ -28,6 +28,7 @@ export class OrderController {
     if (query?.topic === 'merchant_order') {
       return;
     }
+    console.log('event', body);
     const [confirm, process] = await this.orderService.confirm(id, query, body);
     return { url: `${this.eventsMF}/events/${process.event.id}/orders/${process.order.id}` };
   }
