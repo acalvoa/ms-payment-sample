@@ -34,6 +34,9 @@ export class OrderService {
   public async confirm(id: number, query: any, body: any): 
   Promise<[Payment, ProcessOrderDto]> {
     const payment = await this.paymentService.getPayment(id);
+    if (this.handleMercadopagoRestrictions(payment, query)) {
+      return;
+    }
     const process = await this.getProcessFromMemory(payment.order);
     let user = null;
     try {
@@ -75,6 +78,17 @@ export class OrderService {
       new GeneralException(e);
       console.error(e)
     }
+  }
+
+  private handleMercadopagoRestrictions(payment: Payment, query: any): boolean {
+    if (query?.topic === 'merchant_order') {
+      return true;
+    }
+    if (payment.status === PaymentStatus.PAID) {
+      return true;
+    }
+
+    return false;
   }
 
   private async applyDiscount(process: ProcessOrderDto): Promise<void> {
