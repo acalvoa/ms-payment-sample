@@ -19,6 +19,7 @@ import { ParserService } from "src/shared/parser/parser.service";
 import { CountryDomain } from "src/enums/country-domain.enum";
 import { ConsumerService } from "../consumer/consumer.service";
 import { Consumer } from "src/models/consumer.model";
+import { CommissionPayer } from "src/enums/commission-payer.enum";
 
 @Injectable()
 export class TicketService {
@@ -112,6 +113,7 @@ export class TicketService {
     origin: TicketOrigin, status: TicketStatus, owner: boolean, 
     discounted: TicketDiscounted, process: ProcessOrderDto): Promise<Ticket>  {
     return new Promise<Ticket>((resolve, reject) => {
+      const commision = ticket.price * ticket.commission;
       const target = new CreateTicketDto();
       target.eventTicket = ticket.id;
       target.event = event.id;
@@ -121,8 +123,12 @@ export class TicketService {
       target.user = owner ? user.id : null;
       target.holder = user.id;
       target.discount = discounted ? discounted.discount : 0
-      target.paid = discounted ? discounted.price : ticket.price;
-      target.commission = discounted && discounted.price === 0 ? 0 : ticket.price * ticket.commission;
+      target.paid = discounted 
+        ? discounted.price - commision 
+        : ticket.commissionPayer === CommissionPayer.BUYER 
+          ? ticket.price 
+          : ticket.price - commision;
+      target.commission = discounted && discounted.price === 0 ? 0 : commision;
       target.origin = origin;
       this.rest.post<Ticket>(`${this.platform}/tickets`, target)
       .subscribe(response => {
