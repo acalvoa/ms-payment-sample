@@ -10,7 +10,6 @@ import { TicketService } from 'src/modules/tickets/services/ticket/ticket.servic
 import { RedisServerService } from 'src/shared/redis/redis.service';
 import { PaymentService } from 'src/modules/payments/services/payment/payment.service';
 import { OrderStatus } from 'src/enums/order-status.enum';
-import { ParserService } from 'src/shared/parser/parser.service';
 import { NotificationService } from 'src/shared/notification/notification.service';
 import { AuthService } from 'src/modules/users/services/user.service';
 import { GeneralException } from 'src/exceptions/general-exception';
