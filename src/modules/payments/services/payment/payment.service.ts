@@ -71,6 +71,7 @@ export class PaymentService {
 
   public async updatePayment(payment: Payment): Promise<Payment> {
     return new Promise<Payment>((resolve, reject) => {
+      console.log(payment);
       this.rest.patch<Payment>(`${this.path}/payments/${payment.id}`, payment)
       .subscribe(response => {
         resolve(response.data);
