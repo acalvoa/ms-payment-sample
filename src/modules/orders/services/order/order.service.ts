@@ -47,7 +47,6 @@ export class OrderService {
         throw new NotFoundException('Process not found. Expire or deleted');
       }
       const response = await this.confirmPayment(payment, query, body);
-      console.log('confirm response', response)
       // If have metadata
       if (response) {
         payment.metadata = response;
