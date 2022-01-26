@@ -21,4 +21,10 @@ export class Payment {
   public status: PaymentStatus;
   public createdAt: Date | string;
   public completedAt: Date | string;
+
+  public toJSON(): any {
+    const response = Object.assign({}, this);
+    response.metadata = JSON.stringify(this.metadata);
+    return response;
+  }
 }
