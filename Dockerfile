@@ -13,6 +13,7 @@ WORKDIR /app
 
 # Copy package list
 COPY /package.json .
+COPY /yarn.lock .
 
 # Install packages
 RUN yarn install --ignore-optional
