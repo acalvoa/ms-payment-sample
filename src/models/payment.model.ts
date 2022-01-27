@@ -22,7 +22,7 @@ export class Payment {
   public createdAt: Date | string;
   public completedAt: Date | string;
 
-  public toJSON(): any {
+  public toJSON?(): any {
     const response = Object.assign({}, this);
     response.metadata = JSON.stringify(this.metadata);
     return response;
