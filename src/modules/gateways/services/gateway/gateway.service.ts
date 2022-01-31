@@ -1,6 +1,7 @@
-import { HttpService, Injectable } from '@nestjs/common';
+import { BadRequestException, HttpService, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { RequestQueryBuilder } from '@nestjsx/crud-request';
+import { GatewayDataException } from 'src/exceptions/gateway-data.exception';
 import { Gateway } from 'src/models/gateway.model';
 import { ParserService } from 'src/shared/parser/parser.service';
 
@@ -15,6 +16,11 @@ export class GatewayService {
   }
 
   public getGateways(country: string): Promise<Gateway[]> {
+
+    if (!country) {
+      return Promise.reject(new BadRequestException());
+    }
+
     return new Promise(async (resolve, reject) => {
       const query = RequestQueryBuilder.create();
       query.setJoin({ field: 'provider' })
@@ -23,8 +29,7 @@ export class GatewayService {
       .subscribe(response => {
         resolve(response.data);
       }, error => {
-        console.error(error);
-        reject(error);
+        reject(new GatewayDataException(error));
       });
     });
   }
