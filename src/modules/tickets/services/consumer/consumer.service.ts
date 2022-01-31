@@ -1,5 +1,6 @@
 import { HttpService, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { ConsumerDataException } from 'src/exceptions/consumer-data.exception';
 import { Consumer } from 'src/models/consumer.model';
 
 @Injectable()
@@ -20,7 +21,7 @@ export class ConsumerService {
         const target = response.data;
         resolve(target);
       }, error => {
-        reject(error);
+        reject(new ConsumerDataException(error));
       });
     });
   }
