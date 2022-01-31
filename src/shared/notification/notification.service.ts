@@ -17,7 +17,7 @@ import { Consumer } from 'src/models/consumer.model';
 import { SqsService } from '@ssut/nestjs-sqs';
 import { v4 as uuidv4 } from 'uuid';
 import { config } from 'dotenv';
-import { GeneralException } from 'src/exceptions/general-exception';
+import { GeneralException } from 'src/exceptions/general.exception';
 
 config();
 
