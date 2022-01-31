@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Observable } from 'rxjs';
+import { UserDataException } from 'src/exceptions/user-data.exception';
 import { User } from 'src/models/user.model';
 import { ClusterRestService } from 'src/modules/common/services/cluster-rest/cluster-rest.service';
 
@@ -26,8 +27,7 @@ export class AuthService {
       }).subscribe(response => {
         resolve(response.data);
       }, error => {
-        console.error(error);
-        reject(error);
+        reject(new UserDataException(error));
       });
     });
   }
