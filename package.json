@@ -1,6 +1,6 @@
 {
   "name": "ms-payments",
-  "version": "0.0.1",
+  "version": "1.0.1",
   "description": "",
   "author": "",
   "private": true,
@@ -84,6 +84,13 @@
       "^.+\\.(t|j)s$": "ts-jest"
     },
     "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "coveragePathIgnorePatterns" : [
+      ".model.ts",
+      ".enum.ts",
+      ".dto.ts",
+      ".exception.ts",
+      ".fixture.ts"
+    ]
   }
 }
