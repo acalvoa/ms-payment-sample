@@ -10,6 +10,10 @@ import { Provider } from 'src/models/provider.model';
 import { PaymentType } from 'src/enums/payment-type.enum';
 import { PaymentStatus } from 'src/enums/payment-status.enum';
 import { PaymentOrder } from 'src/models/payment-order.model';
+import { PaymentDataException } from 'src/exceptions/payment-data.exception';
+import { GatewayDataException } from 'src/exceptions/gateway-data.exception';
+import { GatewayProviderException } from 'src/exceptions/gateway-provider.exception';
+import { InternalServerException } from 'src/exceptions/internal.exception';
 
 
 @Injectable()
@@ -23,15 +27,19 @@ export class PaymentService {
   }
 
   public async create(process: ProcessOrderDto): Promise<PaymentResponse> {
-    const gateway = await this.getGateway(process.payment);
-    let payment = await this.createPayment(process, gateway);
-    this.attachMetadata(payment, process);
-    const payOrder = await this.txPayment(gateway, payment);
-    payment.txp = payOrder.tx;
-    payment = await this.updatePayment(payment);
-    return {
-      payment,
-      gatewayInfo: payOrder
+    try {
+      const gateway = await this.getGateway(process.payment);
+      let payment = await this.createPayment(process, gateway);
+      this.attachMetadata(payment, process);
+      const payOrder = await this.txPayment(gateway, payment);
+      payment.txp = payOrder.tx;
+      payment = await this.updatePayment(payment);
+      return {
+        payment,
+        gatewayInfo: payOrder
+      }
+    } catch (e) {
+      throw new InternalServerException(e);
     }
   }
 
@@ -63,8 +71,7 @@ export class PaymentService {
       .subscribe(response => {
         resolve(response.data);
       }, error => {
-        console.error(error);
-        reject(error);
+        reject(new PaymentDataException(error));
       });
     });
   }
@@ -75,8 +82,7 @@ export class PaymentService {
       .subscribe(response => {
         resolve(response.data);
       }, error => {
-        console.error(error);
-        reject(error);
+        reject(new PaymentDataException(error));
       });
     });
   }
@@ -90,8 +96,7 @@ export class PaymentService {
         .subscribe(response => {
           resolve((response.data && response.data.length > 0) ? response.data[0] : null);
         }, error => {
-          console.error(error);
-          reject(error);
+          reject(new GatewayDataException(error));
         });
     });
   }
@@ -101,11 +106,10 @@ export class PaymentService {
       const url = `${(gateway.provider as Provider).app}/orders`;
       this.rest.post<PaymentOrder>(url, {
         payment
-      })
-      .subscribe(response => {
+      }).subscribe(response => {
         resolve(response.data);
       }, error => {
-        reject(error);
+        reject(new GatewayProviderException(error));
       });
     });
   }
@@ -120,7 +124,7 @@ export class PaymentService {
         .subscribe(response => {
           resolve((response.data && response.data.length > 0) ? response.data[0] : null);
         }, error => {
-          reject(error);
+          reject(new PaymentDataException(error));
         });
     });
   }
