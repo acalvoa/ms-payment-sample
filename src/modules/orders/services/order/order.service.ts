@@ -12,7 +12,7 @@ import { PaymentService } from 'src/modules/payments/services/payment/payment.se
 import { OrderStatus } from 'src/enums/order-status.enum';
 import { NotificationService } from 'src/shared/notification/notification.service';
 import { AuthService } from 'src/modules/users/services/user.service';
-import { GeneralException } from 'src/exceptions/general-exception';
+import { GeneralException } from 'src/exceptions/general.exception';
 
 @Injectable()
 export class OrderService {
