@@ -20,12 +20,12 @@ import { CountryDomain } from "src/enums/country-domain.enum";
 import { ConsumerService } from "../consumer/consumer.service";
 import { Consumer } from "src/models/consumer.model";
 import { CommissionPayer } from "src/enums/commission-payer.enum";
+import { TicketDataException } from "src/exceptions/ticket-data.exception";
 
 @Injectable()
 export class TicketService {
 
   private platform: string;
-  private streaming: string;
   
   constructor(private rest: HttpService,
     private answerService: AnswersService,
@@ -33,7 +33,6 @@ export class TicketService {
     private parser: ParserService,
     private consumerService: ConsumerService) {
     this.platform = this.config.get('PLATFORM_DATA');
-    this.streaming = this.config.get('STREAMING_MF');
   }
 
   private isUniqueOrder(tickets: any[]): boolean {
@@ -134,8 +133,7 @@ export class TicketService {
       .subscribe(response => {
         resolve(response.data);
       }, error => {
-        console.error(error);
-        reject(error);
+        reject(new TicketDataException(error));
       });
     });
   }
