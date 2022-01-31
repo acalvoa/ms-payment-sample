@@ -14,17 +14,17 @@ import { Payment } from 'src/models/payment.model';
 import { User } from 'src/models/user.model';
 import { ReadStreamingDto } from 'src/modules/orders/dto/read-streaming.dto';
 import { Consumer } from 'src/models/consumer.model';
-import { SqsService } from '@ssut/nestjs-sqs';
 import { v4 as uuidv4 } from 'uuid';
 import { config } from 'dotenv';
 import { GeneralException } from 'src/exceptions/general.exception';
+import { SQSService } from '../sqs/sqs.service';
 
 config();
 
 @Injectable()
 export class NotificationService {
 
-  constructor(private readonly sqsService: SqsService) {
+  constructor(private readonly sqsService: SQSService) {
   }
 
   private getEventDate(event: Event | ReadStreamingDto, user: User): string {
@@ -210,7 +210,7 @@ export class NotificationService {
 
   private async sendNotification(message: any): Promise<boolean> {
     try {
-      await this.sqsService.send(process.env.AWS_SQS_QUEUE_NAME_NOTIFICATION, {
+      await this.sqsService.sendFIFOMessage({
         id: uuidv4(),
         body: message,
         groupId: `email-notification-${uuidv4()}`,

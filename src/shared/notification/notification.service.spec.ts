@@ -1,6 +1,6 @@
 import { ConfigModule } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
-import { SqsService } from '@ssut/nestjs-sqs';
+import { SQSService } from '../sqs/sqs.service';
 import { NotificationService } from './notification.service';
 
 describe('NotificationService', () => {
@@ -10,7 +10,7 @@ describe('NotificationService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         NotificationService,
-        { provide: SqsService, useValue: {}}
+        { provide: SQSService, useValue: {}}
       ],
       imports: [
         ConfigModule
