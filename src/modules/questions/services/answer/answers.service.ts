@@ -1,5 +1,6 @@
 import { HttpService, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { AnswerDataException } from 'src/exceptions/answer-data.exception';
 import { Answer } from '../../dtos/answer.dto';
 import { CreateAnswerDto } from '../../dtos/create-answer.dto';
 
@@ -20,7 +21,7 @@ export class AnswersService {
         .subscribe(response => {
           resolve(new Answer(response.data));
         }, error => {
-          reject(error);
+          reject(new AnswerDataException(error));
         });
     });
   }
