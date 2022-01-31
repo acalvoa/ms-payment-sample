@@ -6,7 +6,7 @@ export interface Gateway {
   readonly id?: number;
   readonly provider: Provider | number;
   readonly type: PaymentType;
-  readonly country: Country | number;
+  readonly country: string;
   readonly commission: number;
   readonly tax: number;
 }
